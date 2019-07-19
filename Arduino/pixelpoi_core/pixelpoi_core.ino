@@ -69,7 +69,7 @@ void printLetter(char letter, CRGB color){
 }
 
 
-void printString(String str){
+void printString(String &str){
   for (int index=0; index<(int)(str.length()); index++){
     printLetter(str[index], DEFAULT_COLOR);
   }
@@ -84,10 +84,12 @@ class Demo{
   static void Pangram();
 };
 void Demo::Helloworld(){
-  printString("Hello World! ");
+  static String strHelloworld = "Hello World! ";
+  printString(strHelloworld);
 }
 void Demo::Pangram(){
-  printString("The quick onyx goblin jumps over the lazy dwarf. ");
+  static String strPangram = "The quick onyx goblin jumps over the lazy dwarf. ";
+  printString(strPangram);
 }
 
 

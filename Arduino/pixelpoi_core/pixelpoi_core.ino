@@ -27,7 +27,7 @@ CRGB leds[NUM_LEDS];
 int btnState = 0;         // variable for reading the pushbutton status
 int lastState = 0;
 int bounceDelay = 128;
-int lastValidChangeTimeStamp = -1 * bounceDelay;
+unsigned long lastValidChangeTimeStamp = 0; // the int in arduino is actually int16
 int cnt = 0;
 int cntClick = 0;
 int cntLongPress = 0;
@@ -45,7 +45,7 @@ int chargingHandler(){
       prev_mode = mode;
       mode = 2; 
     }
-  }else{
+  }else if (mode == 2){
     mode = prev_mode;
     return 1; // if switch back, return 1
   }
@@ -71,6 +71,7 @@ int btnHandler(){
     // HIGH to LOW
     else if (millis()-lastValidChangeTimeStamp<thresLongPress){
       // single click
+      Serial.println("Clicked");
       if (mode == 0){
         indexDisplay ++;
         indexDisplay %= 5;
@@ -81,6 +82,7 @@ int btnHandler(){
     }
     else{
       // long press
+      Serial.println("Long Pressed");
       if (mode == 0){
         mode = 1;
         valReturn = 1;
@@ -101,12 +103,14 @@ void flashColor(CRGB color){
   }
   FastLED.show();
   delay(blink_interval*10);
+  btnHandler();
   for (int j = 0; j < NUM_LEDS; j++){
     for (int i = 0; i <= j; i++){
       leds[i].fadeToBlackBy( 64 );
     }
     FastLED.show();
     delay(blink_interval*10);
+    btnHandler();
   }
 }
 
@@ -125,9 +129,10 @@ int printImage(byte img[][16]){
 
     // button handling
     terminate = btnHandler();
+    /*
     if (terminate){
       return terminate;
-    }
+    }*/
   }
 
   // print the gap between columns
@@ -176,9 +181,10 @@ int printLetter(char letter, CRGB color){
 
     // button handling
     terminate = btnHandler();
+    /*
     if (terminate){
       return terminate;
-    }
+    }*/
   }
 
   // print the gap between letters
@@ -191,7 +197,7 @@ int printLetter(char letter, CRGB color){
   delay(blink_interval);
 
   // button handling
-  terminate = btnHandler();
+  terminate |= btnHandler();
   if (terminate){
     return terminate;
   }
@@ -304,9 +310,6 @@ void loop() {
         Demo::Pangram();
         break;
       case 3:
-        flashColor(CRGB::Red);
-        flashColor(CRGB::Green);
-        flashColor(CRGB::Blue);
         break;
       case 4:
         Demo::MySuperG();

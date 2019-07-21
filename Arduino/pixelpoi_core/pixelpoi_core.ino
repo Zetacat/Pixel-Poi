@@ -5,6 +5,7 @@
 
 #define LED_PIN 7
 #define BUTTON_PIN 5
+#define BAT_PIN 4 // battery charging indication pin
 #define NUM_LEDS 16
 #define DEFAULT_COLOR CRGB(50, 50, 50)
 #define CHAR_WIDTH 5
@@ -31,12 +32,31 @@ int cnt = 0;
 int cntClick = 0;
 int cntLongPress = 0;
 int thresLongPress = 500;
-int mode = 0; // 0: display  1: bt_trans
+int mode = 0; // 0: display  1: bt_trans 2: charging
+int prev_mode = 0; // store mode before charging
 int indexDisplay = 1; // 0: custom  1~4: demo1~4 (helloworld, pangram, clock, image)
 
 
 
+int chargingHandler(){
+  int charging = digitalRead(BAT_PIN);
+  if (charging){
+    if(mode != 2){
+      prev_mode = mode;
+      mode = 2; 
+    }
+  }else{
+    mode = prev_mode;
+    return 1; // if switch back, return 1
+  }
+  return 0;
+}
+
+
 int btnHandler(){
+  // showing charging animation
+  chargingHandler();
+  
   /* button handling */
   int btnRead = digitalRead(BUTTON_PIN); // read the state of the pushbutton value:
   int valReturn = 0; // if indexDisplay or mode is changed return 1, otherwise 0
@@ -71,6 +91,23 @@ int btnHandler(){
     lastValidChangeTimeStamp = millis();
   }
   return valReturn;
+}
+
+
+
+void flashColor(CRGB color){
+  for (int i = 0; i < NUM_LEDS; i++){
+    leds[i] = color;
+  }
+  FastLED.show();
+  delay(blink_interval*10);
+  for (int j = 0; j < NUM_LEDS; j++){
+    for (int i = 0; i <= j; i++){
+      leds[i].fadeToBlackBy( 64 );
+    }
+    FastLED.show();
+    delay(blink_interval*10);
+  }
 }
 
 
@@ -201,18 +238,27 @@ void setup() {
   Serial.begin(9600);
   BT.begin(9600);
   Serial.println("BT is ready!");
-  FastLED.addLeds<WS2812B, LED_PIN, RGB>(leds, NUM_LEDS);
+  FastLED.addLeds<NEOPIXEL, LED_PIN>(leds, NUM_LEDS); // I'm actually using WS2812B, however the colors are inaccurate
   pinMode(BUTTON_PIN, INPUT); // pin 5 is for mode switching button
+  pinMode(BAT_PIN, INPUT); // pin 4 is for charging detection
 }
 
 void loop() {
   /* button handling */
   btnHandler();
+
+
+  /* charging mode */
+  if (mode == 2){
+    Serial.println("Charging");
+    flashColor(CRGB::Green);
+  }  
   
-  
+
   /* bluetooth data-transfer mode */
   if (mode == 1){
     Serial.println("BT mode");
+    flashColor(CRGB::Blue);
     char buf = 0;
     // data transfer from serial port to BT
     if (Serial.available()){
@@ -258,6 +304,9 @@ void loop() {
         Demo::Pangram();
         break;
       case 3:
+        flashColor(CRGB::Red);
+        flashColor(CRGB::Green);
+        flashColor(CRGB::Blue);
         break;
       case 4:
         Demo::MySuperG();

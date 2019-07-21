@@ -6,7 +6,7 @@ const CRGB colorTable[5] = {
   CRGB::Yellow, 
 };
 
-// LS3 to MS3: top to Down
+// LSB to MSB: top to Down
 // left to right: left to right
 const byte img[16][16] = {
     // 1

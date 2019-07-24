@@ -7,7 +7,7 @@
 #define BUTTON_PIN 5
 #define BAT_PIN 4 // battery charging indication pin
 #define NUM_LEDS 16
-#define DEFAULT_COLOR CRGB(50, 50, 50)
+#define DEFAULT_COLOR CRGB(200, 200, 200)
 #define CHAR_WIDTH 5
 #define CHAR_HEIGHT 8
 #define IMG_WIDTH 16
@@ -15,7 +15,7 @@
 
 /* for BT */
 SoftwareSerial BT(8, 9); // for bluetooth serial
-String strReceive = ""; // record received string
+char strReceive[64] = {0}; // record received string
 int terminated = 0; // indicate whether the string is finished
 
 /* for leds */
@@ -206,8 +206,8 @@ int printLetter(char letter, CRGB color){
 }
 
 
-void printString(String &str){
-  for (int index=0; index<(int)(str.length()); index++){
+void printString(char* str){
+  for (int index=0; index<(int)(strlen(str)); index++){
     int terminate = printLetter(str[index], DEFAULT_COLOR);
     // quit if mode is changed before string finish
     if (terminate){
@@ -225,17 +225,22 @@ class Demo{
   static void Helloworld();
   static void Pangram();
   static void MySuperG();
+  static void Math();
 };
 void Demo::Helloworld(){
-  static String strHelloworld = "Hello World! ";
+  static char* strHelloworld = "Hello World! ";
   printString(strHelloworld);
 }
 void Demo::Pangram(){
-  static String strPangram = "The quick onyx goblin jumps over the lazy dwarf. ";
+  static char* strPangram = "The quick onyx goblin jumps over the lazy dwarf. ";
   printString(strPangram);
 }
 void Demo::MySuperG(){
-  printImage(img);
+  printImage(bmpMySuperG);
+}
+void Demo::Math(){
+  static char* strMath = "1+1=2 ";
+  printString(strMath);
 }
 
 
@@ -279,17 +284,18 @@ void loop() {
       // process received data
       if (terminated){
         // initialize the string
-        strReceive = "";
+        strcpy(strReceive, "");
         terminated = 0;
       }
       if (printable(buf)){
-        strReceive += buf;
-      }else if ((int)strReceive.length()>0){
+        strcat(strReceive, buf);
+      }else if ((int)strlen(strReceive)>0){
         // any non-printable char indicates the end of the string
+        // if the string length is positive it's valid
         Serial.print("Received string is : ");
         Serial.println(strReceive);
         Serial.print("String length : ");
-        Serial.println((int)strReceive.length());
+        Serial.println((int)strlen(strReceive));
         terminated = 1;
       }
     }
@@ -310,6 +316,7 @@ void loop() {
         Demo::Pangram();
         break;
       case 3:
+        Demo::Math();
         break;
       case 4:
         Demo::MySuperG();

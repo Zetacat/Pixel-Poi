@@ -225,7 +225,7 @@ class Demo{
   static void Helloworld();
   static void Pangram();
   static void MySuperG();
-  static void Math();
+  static void Horrible();
 };
 void Demo::Helloworld(){
   static char* strHelloworld = "Hello World! ";
@@ -238,9 +238,9 @@ void Demo::Pangram(){
 void Demo::MySuperG(){
   printImage(bmpMySuperG);
 }
-void Demo::Math(){
-  static char* strMath = "1+1=2 ";
-  printString(strMath);
+void Demo::Horrible(){
+  static char* strHorrible = "P!=NP ";
+  printString(strHorrible);
 }
 
 
@@ -316,7 +316,7 @@ void loop() {
         Demo::Pangram();
         break;
       case 3:
-        Demo::Math();
+        Demo::Horrible();
         break;
       case 4:
         Demo::MySuperG();

@@ -3,7 +3,9 @@
 ## Description
 
 This is my first ever Arduino Project. 
+
 I want to make something like this:
+
 https://www.youtube.com/watch?v=LGy0neDXxAE
 
 ## Current Progress
@@ -14,9 +16,9 @@ https://www.youtube.com/watch?v=LGy0neDXxAE
 
 ## Images
 
-![](https://imgur.com/a/Eo3ERNX)
+![](https://i.imgur.com/X7fSIJP.jpg)
 
-![](https://imgur.com/a/0CGSoDz)
+![](https://i.imgur.com/0To8Hyj.jpg)
 
 ## Reference
 
